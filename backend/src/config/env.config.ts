@@ -174,6 +174,20 @@ export function validateEnv(): EnvConfig {
 /**
  * Get the validated config object. Must call validateEnv() first (typically in main.ts).
  *
+ * Deliberately throws instead of lazily calling validateEnv() on first access (#428). The
+ * alternative — having `getConfig()` self-initialize — would make every module-level
+ * `config.*` read "work by accident" regardless of import order, which is exactly the kind
+ * of ordering bug this project keeps hitting: it would silently mask a *new* module-level
+ * read added later (no test would ever exercise the "config not initialized yet" path,
+ * since it could no longer occur). Keeping the throw means that dependency is explicit and
+ * testable: every read of `config`/`getConfig()` must happen inside a factory, constructor,
+ * or method body — something Nest (or a test) controls the timing of — never at module
+ * evaluation time. `main.ts` still validates first via the top-level `validateEnv()` call;
+ * tests validate first via an explicit `validateEnv()` call before importing the module
+ * under test (see e.g. `rate-limit.guard.spec.ts`, `stellar.service.spec.ts`). See
+ * `env-config-import-order.spec.ts` for a regression test asserting that importing a module
+ * which reads `config` does NOT throw, because it no longer reads `config` at import time.
+ *
  * @throws {Error} if validateEnv() hasn't been called yet
  */
 export function getConfig(): EnvConfig {

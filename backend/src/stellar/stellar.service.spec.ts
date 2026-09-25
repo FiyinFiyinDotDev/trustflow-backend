@@ -1,10 +1,3 @@
-import { validateEnv } from '../config/env.config';
-
-// stellar.config.ts reads `config.STELLAR_NETWORK` etc. at module load time
-// (see stellar.config.ts), so anything importing StellarService transitively
-// needs validateEnv() to have already run — normally done once in main.ts.
-validateEnv();
-
 import { Horizon } from '@stellar/stellar-sdk';
 import { StellarService } from './stellar.service';
 import type { RpcFailoverService } from './rpc-failover.service';

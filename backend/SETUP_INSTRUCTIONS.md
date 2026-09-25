@@ -143,12 +143,31 @@ npm start
 ```
 backend/
 ├── src/
-│   ├── auth/              # JWT authentication
-│   ├── escrow/            # Escrow management
-│   ├── stellar/           # Stellar blockchain integration
-│   ├── webhook/           # Webhook system & Discord
-│   ├── monitoring/        # Health checks & metrics
-│   └── index.ts           # App entry point
+│   ├── admin/                  # Read-only protocol analytics dashboard (admin-only)
+│   ├── auth/                   # Wallet-signature JWT auth — challenge/verify, nonce store, guard
+│   ├── common/                 # Cross-cutting: rate limiting, Redis client, idempotency, pagination, logging, DB, filters
+│   ├── config/                 # Zod-validated env config, .env loading
+│   ├── deliverable/            # Gig deliverable submission and review
+│   ├── dispute/                # Dispute resolution saga (juror voting, resolution)
+│   ├── escrow/                 # Escrow vault CRUD, milestone release, disputes
+│   ├── escrow-reconciliation/  # Reconciles off-chain escrow state against on-chain Soroban state
+│   ├── escrow-write/           # Builds unsigned Soroban release transactions for client signing
+│   ├── event-ingestion/        # Polls Soroban RPC for contract events, feeds the outbox
+│   ├── gig/                    # Gig solicitation postings — accept/cancel, auto-expiry sweep
+│   ├── ipfs-pinning/           # Multi-provider IPFS pinning (Pinata/Web3.Storage/Infura) with failover
+│   ├── migration/              # Schema migration registry/runner (admin-triggered run/rollback)
+│   ├── milestone-notifications/# WebSocket gateway for milestone/escrow event notifications
+│   ├── monitoring/             # Health checks (`/health`) and Prometheus metrics (`/metrics`)
+│   ├── notification/           # Shared notification dispatch types/service
+│   ├── outbox/                 # Transactional outbox relay to WebSocket/webhooks/workers
+│   ├── reputation/             # Wallet reputation scoring with time decay
+│   ├── sentry/                 # Sentry error-monitoring integration
+│   ├── soroban-event-indexer/  # Indexes raw Soroban events into Redis for `/events/soroban`
+│   ├── stellar/                # Horizon/Soroban RPC clients, failover, network config
+│   ├── testing/                # Shared test doubles (fake Redis client)
+│   ├── user-profile/           # Wallet-linked user profiles — search, ratings, verification
+│   ├── webhook/                # Webhook registration/dispatch, HMAC signing, Discord notifications
+│   └── main.ts                 # App entry point
 ├── scripts/
 │   └── ci-check.sh        # Local CI verification
 ├── dist/                  # Build output (generated)
@@ -182,7 +201,7 @@ backend/
 
 1. Clear npm cache: `npm cache clean --force`
 2. Delete `node_modules` and `package-lock.json`, then retry
-3. Check Node.js version: `node -v` (should be 18.x or 20.x)
+3. Check Node.js version: `node -v` (should be >= 20, matching the repo-root `.nvmrc`)
 4. Try using `npm install --legacy-peer-deps`
 
 ### Issue: Port 3001 already in use
@@ -261,5 +280,5 @@ This catches issues before they reach CI, saving time and CI minutes.
 ## Additional Resources
 
 - [Discord Integration Setup](src/webhook/DISCORD_INTEGRATION.md)
-- [CI/CD Documentation](.github/workflows/README.md)
+- [CI/CD Documentation](../.github/workflows/README.md)
 - [Main README](../README.md)

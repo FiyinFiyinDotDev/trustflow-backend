@@ -3,6 +3,11 @@ import { EventIngestionService } from './event-ingestion.service';
 import { LedgerCursorService } from './ledger-cursor.service';
 import { EventProcessorService } from './event-processor.service';
 import { EscrowService } from '../escrow/escrow.service';
+import { validateEnv } from '../config/env.config';
+
+// EventIngestionService reads config.EVENT_PROCESSING_CONCURRENCY in its constructor,
+// which requires validateEnv() to have run first — normally done once in main.ts.
+validateEnv();
 
 describe('EventIngestionService', () => {
   let service: EventIngestionService;
